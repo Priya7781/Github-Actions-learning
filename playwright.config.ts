@@ -1,4 +1,14 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+import path from 'path';
+
+// Load environment variables from .env file for local development
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+
+import { envUrls } from './config/env.config';
+
+const selectedEnv = (process.env.TARGET_ENV || 'ST').toUpperCase();
+const targetBaseURL = envUrls[selectedEnv] || envUrls.ST;
 
 export default defineConfig({
   testDir: './tests',
@@ -8,9 +18,11 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [
     ['html', { open: 'never' }],
-    ['list']
+    ['list'],
+    ['github']
   ],
   use: {
+    baseURL: targetBaseURL,
     trace: 'on-first-retry',
   },
   projects: [
@@ -18,13 +30,5 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    // },
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    // },
   ],
 });

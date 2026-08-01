@@ -1,16 +1,14 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Example Playwright TypeScript Test Suite', () => {
-  test('has title', async ({ page }) => {
-    await page.goto('https://playwright.dev/');
+test('Validate Selected Environment URL', async ({ page, baseURL }) => {
+  if (!baseURL) {
+    throw new Error('Base URL is not defined in playwright.config.ts');
+  }
 
-    // Expect a title "to contain" a substring.
-    await expect(page).toHaveTitle(/Playwright/);
-  });
+  // Navigate to target URL configured in playwright.config.ts
+  await page.goto(baseURL);
 
-  test('get started link', async ({ page }) => {
-    await page.goto('https://www.google.com');
-    await page.getByRole('combobox', { name: 'Search' }).click();
-    await page.getByRole('combobox', { name: 'Search' }).fill('priya');
-  });
+  // Validate the page URL matches the target environment URL
+  const currentUrl = page.url();
+  expect(currentUrl).toContain(new URL(baseURL).hostname);
 });
